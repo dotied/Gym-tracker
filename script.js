@@ -22,7 +22,7 @@ const templateList = document.getElementById("template-list");
 
 const historyList = document.getElementById("history-list");
 
-/* ========= HELPERS ========= */
+/* ========= HELPER FUNCTIONS ========= */
 function load(key) {
   return JSON.parse(localStorage.getItem(key)) || [];
 }
@@ -36,7 +36,7 @@ function showScreen(screen) {
   screen.classList.remove("hidden");
 }
 
-/* ========= NAV ========= */
+/* ========= NAVIGATION ========= */
 navLog.onclick = () => showScreen(logScreen);
 navHistory.onclick = () => {
   renderHistory();
@@ -52,7 +52,7 @@ function renderTemplates() {
   const templates = load(TEMPLATE_KEY);
   templateList.innerHTML = "";
 
-  templates.forEach(t => {
+  templates.forEach((t, i) => {
     const div = document.createElement("div");
     div.className = "template-item";
     div.textContent = `${t.name}: ${t.exercises.join(", ")}`;
@@ -80,7 +80,7 @@ saveTemplateBtn.onclick = () => {
   renderTemplates();
 };
 
-/* ========= LOG ========= */
+/* ========= LOG SCREEN ========= */
 function populateWorkoutSelect() {
   const templates = load(TEMPLATE_KEY);
   workoutSelect.innerHTML = "";
@@ -99,6 +99,7 @@ function populateWorkoutSelect() {
   }
 }
 
+/* Render exercises with multiple sets */
 function renderExercises(exercises) {
   exerciseList.innerHTML = "";
 
@@ -106,26 +107,54 @@ function renderExercises(exercises) {
     const block = document.createElement("div");
     block.className = "exercise-block";
 
-    block.innerHTML = `
-      <h3>${name}</h3>
-      <div class="exercise-fields">
-        <input placeholder="Sets" type="number">
-        <input placeholder="Reps" type="number">
-        <input placeholder="Weight" type="number">
-        <input placeholder="Rest (sec)" type="number">
-      </div>
-    `;
+    const setsContainer = document.createElement("div");
+    setsContainer.className = "sets-container";
+
+    // Start with one set
+    addSetRow(setsContainer);
+
+    const addSetBtn = document.createElement("button");
+    addSetBtn.textContent = "Add Set";
+    addSetBtn.style.marginTop = "8px";
+    addSetBtn.onclick = () => addSetRow(setsContainer);
+
+    block.innerHTML = `<h3>${name}</h3>`;
+    block.appendChild(setsContainer);
+    block.appendChild(addSetBtn);
 
     exerciseList.appendChild(block);
   });
 }
 
+/* Add a single set row */
+function addSetRow(container, setData = {}) {
+  const row = document.createElement("div");
+  row.className = "set-row";
+  row.style.display = "flex";
+  row.style.gap = "6px";
+  row.style.marginBottom = "6px";
+
+  row.innerHTML = `
+    <input type="number" placeholder="Reps" value="${setData.reps || ""}" style="width:60px">
+    <input type="number" placeholder="Weight (kg)" value="${setData.weight || ""}" style="width:80px">
+    <input type="number" placeholder="Rest (sec)" value="${setData.rest || ""}" style="width:80px">
+    <button style="width:50px;background:#ff3b30;color:white;border:none;border-radius:6px;cursor:pointer;">X</button>
+  `;
+
+  const deleteBtn = row.querySelector("button");
+  deleteBtn.onclick = () => container.removeChild(row);
+
+  container.appendChild(row);
+}
+
+/* When workout changes, load exercises */
 workoutSelect.onchange = () => {
   const templates = load(TEMPLATE_KEY);
   const template = templates[workoutSelect.value];
   if (template) renderExercises(template.exercises);
 };
 
+/* Save the workout */
 saveWorkoutBtn.onclick = () => {
   const templates = load(TEMPLATE_KEY);
   const template = templates[workoutSelect.value];
@@ -135,13 +164,21 @@ saveWorkoutBtn.onclick = () => {
   const exercises = [];
 
   blocks.forEach(block => {
-    const inputs = block.querySelectorAll("input");
+    const setsContainer = block.querySelector(".sets-container");
+    const setRows = setsContainer.querySelectorAll(".set-row");
+
+    const sets = Array.from(setRows).map(row => {
+      const inputs = row.querySelectorAll("input");
+      return {
+        reps: inputs[0].value,
+        weight: inputs[1].value,
+        rest: inputs[2].value
+      };
+    });
+
     exercises.push({
       name: block.querySelector("h3").textContent,
-      sets: inputs[0].value,
-      reps: inputs[1].value,
-      weight: inputs[2].value,
-      rest: inputs[3].value
+      sets
     });
   });
 
@@ -165,25 +202,24 @@ function renderHistory() {
     const dayDiv = document.createElement("div");
     dayDiv.className = "history-day";
 
-    dayDiv.innerHTML = `
-      <h2>${day.date}</h2>
-      <div class="history-workout">${day.workout}</div>
-    `;
+    dayDiv.innerHTML = `<h2>${day.date}</h2>
+                        <div class="history-workout">${day.workout}</div>`;
 
     day.exercises.forEach(ex => {
       const exDiv = document.createElement("div");
       exDiv.className = "history-exercise";
 
-      exDiv.innerHTML = `
-        <h4>${ex.name}</h4>
-        <div class="history-details">
-          <div>Sets: ${ex.sets}</div>
-          <div>Reps: ${ex.reps}</div>
-          <div>Weight: ${ex.weight}</div>
-          <div>Rest: ${ex.rest}</div>
-        </div>
-      `;
+      exDiv.innerHTML = `<h4>${ex.name}</h4>`;
+      const setsContainer = document.createElement("div");
+      setsContainer.className = "history-details";
 
+      ex.sets.forEach((set, i) => {
+        const setDiv = document.createElement("div");
+        setDiv.textContent = `Set ${i + 1}: ${set.reps} reps, ${set.weight} kg, Rest: ${set.rest} sec`;
+        setsContainer.appendChild(setDiv);
+      });
+
+      exDiv.appendChild(setsContainer);
       dayDiv.appendChild(exDiv);
     });
 
