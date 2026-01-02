@@ -14,16 +14,20 @@ body {
 nav {
   display: flex;
   justify-content: space-around;
+  flex-wrap: wrap;          /* Allows buttons to wrap instead of shifting */
+  gap: 8px;                 /* Even spacing between buttons */
   background-color: #2a2a2a;
   padding: 12px 0;
   border-bottom: 1px solid #444;
 }
 
 nav button {
-  background: #0a84ff; /* bright accent */
+  flex: 1 1 30%;            /* Grow/shrink nicely, takes ~30% of nav width */
+  min-width: 80px;           /* Prevent buttons from shrinking too small */
+  background: #0a84ff;
   color: #fff;
   border: none;
-  padding: 8px 16px;
+  padding: 8px 12px;
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
