@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Workout Log</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <button id="nav-log">Log</button>
+    <button id="nav-history">History</button>
+    <button id="nav-setup">Setup</button>
+  </nav>
+
+  <!-- LOG SCREEN -->
+  <section id="log-screen" class="screen">
+
+    <h1>Today’s Workout</h1>
+
+    <label>
+      What are you training today?
+      <select id="workout-select">
+        <!-- options inserted by JS -->
+      </select>
+    </label>
+
+    <div id="exercise-list">
+      <!-- exercises injected here -->
+    </div>
+
+    <button id="save-workout">Save Workout</button>
+
+  </section>
+
+  <!-- HISTORY SCREEN -->
+  <section id="history-screen" class="screen hidden">
+
+    <h1>History</h1>
+
+    <div id="history-list">
+      <!-- workout history injected here -->
+    </div>
+
+  </section>
+
+  <!-- SETUP SCREEN -->
+  <section id="setup-screen" class="screen hidden">
+
+    <h1>Workout Setup</h1>
+
+    <label>
+      Workout name
+      <input type="text" id="workout-name" placeholder="e.g. Chest & Triceps" />
+    </label>
+
+    <label>
+      Exercises (one per line)
+      <textarea
+        id="exercise-input"
+        rows="6"
+        placeholder="Bench Press&#10;Incline DB Press&#10;Tricep Pushdown"
+      ></textarea>
+    </label>
+
+    <button id="save-template">Save Workout Template</button>
+
+    <div id="template-list">
+      <!-- existing templates shown here -->
+    </div>
+
+  </section>
+
+  <!-- JavaScript -->
+  <script src="script.js"></script>
+
+</body>
+</html>
